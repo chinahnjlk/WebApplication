@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "./Scripts/App"
+  },
+  "files": [
+    "./src/app.ts",
+    "./src/site.ts",
+    "./src/test.ts"
+  ],
+  "compileOnSave": true
+}

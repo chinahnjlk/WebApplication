@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <canvas id="myCanvas" height="1500" width="20000"></canvas>
+    <!--
+    <script type="text/javascript">
+            window.onload = function() {
+                //alert(1);
+
+                var cns = document.getElementById("cns");
+                var content = cns.getContext("2d");
+                //content.style = "";
+                //content.beginPath();
+                content.strokeStyle = "red";
+                content.arc(100, 75, 50, 0, 2 * parseFloat(3.1415926));
+                content.stroke();
+
+
+            }
+        </script>
+    -->
+
+    <script>
+
+
+        //获取Canvas对象(画布)
+        var canvas = document.getElementById("myCanvas");
+        //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误
+        if (canvas.getContext) {
+            //获取对应的CanvasRenderingContext2D对象(画笔)
+            var ctx = canvas.getContext("2d");
+
+            //指定绘制路径的起始点
+            ctx.moveTo(50, 50);
+            //注释掉lineTo()，不再先绘制直线
+            ctx.lineTo(150, 50);
+
+            //此时，坐标点(50,50)就是绘制弧线时的当前端点
+
+            //端点1
+            var p1 = {
+                x: 200,
+                y: 50
+            };
+            //端点2
+            var p2 = {
+                x: 200,
+                y: 300
+            };
+            var data = [];
+            var PathElement = [];
+
+            var obj = JSON.parse('{"Tag":"0","StartPoint":{"X":96.90086768961974,"Y":79.68110030674188},"IsLargeArc":false,"RotationAngle":67.19965987010966,"Esize":{"R1":33.82,"R2":33.82},"Point":{"X":57.32577836036482,"Y":82.00455706045268},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"}');
+            var objs = JSON.parse('[{"Tag":"0","StartPoint":{"X":2179.9223023256864,"Y":790.8536172525742},"IsLargeArc":false,"RotationAngle":0.06763764983531928,"Esize":{"R1":3189,"R2":3189},"Point":{"X":2183.6869149561358,"Y":790.8513951902983},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.008677089406,"Y":791.8110030720281},"IsLargeArc":false,"RotationAngle":6.7197426102454045,"Esize":{"R1":3387,"R2":3387},"Point":{"X":572.685813730582,"Y":815.0783757695754},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":282.1789558329228,"Y":861.2593194972087},"IsLargeArc":false,"RotationAngle":89.95395077422756,"Esize":{"R1":65,"R2":65},"Point":{"X":332.66232482980297,"Y":784.4827729428036},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":572.6858135135257,"Y":815.0783757948602},"IsLargeArc":false,"RotationAngle":1.7011540682107267,"Esize":{"R1":3387,"R2":3387},"Point":{"X":473.00345131709514,"Y":828.3262894742406},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":282.36194561400896,"Y":862.1432074826798},"IsLargeArc":false,"RotationAngle":3.9041059168464045,"Esize":{"R1":3387,"R2":3387},"Point":{"X":58.134125063282454,"Y":916.5914288077815},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":239.08646776069358,"Y":1060.8614777749644},"IsLargeArc":false,"RotationAngle":5.340578356943908,"Esize":{"R1":1019,"R2":1019},"Point":{"X":147.07835132343968,"Y":1084.3028092218087},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":421.6762137595979,"Y":835.5063536943198},"IsLargeArc":false,"RotationAngle":1.5532252208890895,"Esize":{"R1":10599,"R2":10599},"Point":{"X":141.60176170970362,"Y":899.6167860790647},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":577.9461811568078,"Y":860.7767773331984},"IsLargeArc":false,"RotationAngle":0.22425490476700816,"Esize":{"R1":3341,"R2":3341},"Point":{"X":564.9624687035266,"Y":862.3328016677078},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"White"},{"Tag":"0","StartPoint":{"X":157.53653578395688,"Y":900.7564027298172},"IsLargeArc":false,"RotationAngle":1.7436141872035904,"Esize":{"R1":3377,"R2":3377},"Point":{"X":58.17052393890583,"Y":926.9649338759791},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":284.4999392632003,"Y":872.2890934867792},"IsLargeArc":false,"RotationAngle":2.2076115612890987,"Esize":{"R1":3377,"R2":3377},"Point":{"X":157.62514956506266,"Y":901.114373210859},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":573.2577836107957,"Y":820.0455706113871},"IsLargeArc":false,"RotationAngle":1.7009307523576354,"Esize":{"R1":3382,"R2":3382},"Point":{"X":473.73566690323884,"Y":833.2723849411891},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":142.60235883979703,"Y":898.3016527733166},"IsLargeArc":false,"RotationAngle":1.4768935376855978,"Esize":{"R1":3383,"R2":3383},"Point":{"X":58.325697004632275,"Y":920.6910681924082},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":121.1771879722869,"Y":944.0748829786216},"IsLargeArc":false,"RotationAngle":1.1183789651010017,"Esize":{"R1":3344,"R2":3344},"Point":{"X":58.20261423259842,"Y":961.2391986725302},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":162.87486025335159,"Y":889.9890469766361},"IsLargeArc":false,"RotationAngle":5.255000989509696,"Esize":{"R1":1150,"R2":1150},"Point":{"X":58.26308561487025,"Y":903.160142967873},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff848484"},{"Tag":"0","StartPoint":{"X":574.9961826656779,"Y":835.1170054874183},"IsLargeArc":false,"RotationAngle":6.293664377609446,"Esize":{"R1":3892,"R2":3892},"Point":{"X":154.33240054541363,"Y":910.1462929217487},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768987512,"Y":837.8110030723951},"IsLargeArc":false,"RotationAngle":6.721853239709887,"Esize":{"R1":3341,"R2":3341},"Point":{"X":577.9461811341667,"Y":860.7767771702511},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768961974,"Y":796.8110030674188},"IsLargeArc":false,"RotationAngle":6.719965987010966,"Esize":{"R1":3382,"R2":3382},"Point":{"X":573.2577836036482,"Y":820.0455706045268},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768985827,"Y":831.8110030706771},"IsLargeArc":false,"RotationAngle":6.7215481647501605,"Esize":{"R1":3347,"R2":3347},"Point":{"X":577.2615827391933,"Y":854.8159347729661},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768981712,"Y":827.81100307109},"IsLargeArc":false,"RotationAngle":6.721365694482671,"Esize":{"R1":3351,"R2":3351},"Point":{"X":576.8040043549327,"Y":850.8421788959004},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768976134,"Y":821.8110030695889},"IsLargeArc":false,"RotationAngle":6.721092793303171,"Esize":{"R1":3357,"R2":3357},"Point":{"X":576.1176374321656,"Y":844.8815450636221},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":969.0086768976072,"Y":811.8110030715202},"IsLargeArc":false,"RotationAngle":6.72064009006597,"Esize":{"R1":3367,"R2":3367},"Point":{"X":574.9736942926755,"Y":834.9471553156168},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"},{"Tag":"0","StartPoint":{"X":2179.9223375083116,"Y":996.8536172603231},"IsLargeArc":false,"RotationAngle":0.06354276615388699,"Esize":{"R1":3395,"R2":3395},"Point":{"X":2183.687495233751,"Y":996.8515293837431},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"White"},{"Tag":"0","StartPoint":{"X":2183.7059479663944,"Y":991.2527285850638},"IsLargeArc":false,"RotationAngle":0.045429345755820805,"Esize":{"R1":5316,"R2":5316},"Point":{"X":2179.4920278209297,"Y":991.348659821605},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"White"},{"Tag":"0","StartPoint":{"X":2179.922302104444,"Y":790.8536172526501},"IsLargeArc":false,"RotationAngle":0.06763765438768132,"Esize":{"R1":3189,"R2":3189},"Point":{"X":2183.686914988272,"Y":790.8513951903492},"Stroke":null,"Start":null,"Height":0,"Width":0,"Color":"ff00ffff"}]');
+            PathElement.push(objs);
+            data.push({ PathElements: PathElement });
+
+            //console.log(data[0].PathElements[0][0].StartPoint);
+            var l = 0;
+            for (var i = 0; i < data[0].PathElements[0].length; i++) {
+                console.log(data[0].PathElements[0][i]);
+                console.log(data[0].PathElements[0][i].StartPoint);
+                ctx.arcTo(parseFloat(data[0].PathElements[0][i].StartPoint.X), parseFloat(data[0].PathElements[0][i].StartPoint.Y), data[0].PathElements[0][i].Point.X, parseFloat(data[0].PathElements[0][i].Point.Y), parseInt(data[0].PathElements[0][i].Esize.R2));
+            }
+            //console.log(JSON.stringify(data[0].PathElements[l]));
+            //ctx.arcTo(parseFloat(data[0].PathElements[l].StartPoint.X), parseFloat(data[0].PathElements[l].StartPoint.Y), data[0].PathElements[l].Point.X, parseFloat(data[0].PathElements[l].Point.Y), parseInt(data[0].PathElements[l].Esize.R2));
+
+
+            //绘制与当前端点、端点1、端点2三个点所形成的夹角的两边相切并且半径为50px的圆的一段弧线
+            //ctx.arcTo(p1.x, p1.y, p2.x, p2.y, 100);
+
+            //设置线条颜色为蓝色
+            ctx.strokeStyle = "ff00ffff";
+            //按照上述绘制路径绘制弧线
+            ctx.stroke();
+        }
+    </script>
+</body>
+</html>

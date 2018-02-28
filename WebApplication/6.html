@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
+</head>
+<body>
+    
+    <div id="c6"></div>
+    
+<script type="text/javascript">
+    const canvas = new G6.Canvas({
+        containerId: 'c6',
+        width: 600,
+        height:600
+    });
+
+
+    canvas.scale(0.5, 0.5);
+    canvas.addShape('arc', {
+        attrs: {
+            x: 300,
+            y: 300,
+            r: 200,
+            startAngle: 1/6 * Math.PI,
+            endAngle: 5/4 * Math.PI,
+            stroke: 'black',
+            lineDash: [20,20]
+        }
+    });
+    canvas.addShape('arc', {
+        attrs: {
+            x: 300,
+            y: 600,
+            r: 200,
+            startAngle: 1/6 * Math.PI,
+            endAngle: 1/2 * Math.PI,
+            stroke: '#0D2031',
+        }
+    });
+    canvas.addShape('arc', {
+        attrs: {
+            x: 900,
+            y: 600,
+            r: 150,
+            startAngle: 1/6 * Math.PI,
+            endAngle: 5/4 * Math.PI,
+            stroke: 'red',
+            arrow: true
+        }
+    });
+    canvas.draw();
+</script>
+</body>
+</html>

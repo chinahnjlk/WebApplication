@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
+
+</head>
+<body>
+    
+<div id="c3"></div>
+<script type="text/javascript">
+    var canvas = new G6.Canvas({
+        containerId: 'c3',
+        width: 600,
+        height: 600
+    });
+
+
+    canvas.addShape('text', {
+        attrs: {
+            x: 150,
+            y: 150,
+            fontFamily: 'PingFang SC',
+            text: '文本文本',
+            fontSize: 90,
+            stroke: 'black'
+        }
+    });
+    canvas.addShape('text', {
+        attrs: {
+            x: 150+100,
+            y: 250,
+            fontFamily: 'PingFang SC',
+            fontSize: 90,
+            text: '字体',
+            lineDash: [10, 10],
+            stroke: 'red'
+        }
+    });
+    canvas.addShape('text', {
+        attrs: {
+            x: 150+50,
+            y: 150+150,
+            text: '对齐方式',
+            fontFamily: 'Hiragino Sans GB',
+            fontSize: 100,
+            textAlign: 'center',
+            textBaseline: 'top',
+            fill: 'rgba(129,9,39,0.5)',
+            stroke: 'blue'
+        }
+    });
+    canvas.draw();
+</script>
+</body>
+</html>
