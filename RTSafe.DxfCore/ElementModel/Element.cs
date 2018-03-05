@@ -16,7 +16,7 @@ namespace RTSafe.DxfCore.ElementModel
 
         public double Width { get; set; }
 
-        public string Color { get; set; }
+        public Brush Color { get; set; }
     }
 
     public class TextElement : Element
@@ -26,6 +26,8 @@ namespace RTSafe.DxfCore.ElementModel
         public string Value { get; set; }
 
         public string Fontfamily { get; set; }
+
+        //public new string  Color { get; set; }
         //public double Height { get; set; }
     }
 

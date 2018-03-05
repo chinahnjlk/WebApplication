@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using RTSafe.DxfCore;
 using RTSafe.DxfCore.DxfCore.Model;
@@ -62,7 +63,7 @@ namespace RtSafe.DxfCore
         private double MinX { get; set; }
 
         /// <summary>
-        /// dxf底图右上Y之
+        /// dxf底图右上Y值
         /// </summary>
         private double MaxY { get; set; }
 
@@ -70,6 +71,16 @@ namespace RtSafe.DxfCore
         /// 显示加载底图的容器
         /// </summary>
         private Canvas _container;
+
+        public DxfHelperReader(Canvas container)
+        {
+            _container = container;
+        }
+
+        public DxfHelperReader()
+        {
+
+        }
 
         /// <summary>
         /// Dxf可见的图层列表
@@ -80,13 +91,14 @@ namespace RtSafe.DxfCore
         /// 读取加载dxf底图文件
         /// </summary>
         /// <param name="ms">文件流</param>
-        public List<ElementList> Read(System.IO.Stream ms)
+        /// <param name="type"></param>
+        public List<ElementList> Read(System.IO.Stream ms,int type)
         {
             try
             {
                 DxfDocument doc = new DxfDocument();
                 doc.Load(ms);
-
+                
                 this.MinX = 0;//doc.ExtMinPoint.X - doc.ExtMaxPoint.X + doc.ExtMinPoint.X;
                 this.MaxY = 2 * (doc.ExtMaxPoint.Y - doc.ExtMinPoint.Y)-100;
                 if (MaxY > 10000 || doc.ExtMaxPoint.X - doc.ExtMinPoint.X > 10000)
@@ -107,7 +119,7 @@ namespace RtSafe.DxfCore
                     Type = 0
                 }).ToList();
                 //var list = LoadShaps(doc.Shaps);
-                return LoadShaps(doc.Shaps);
+                return LoadShaps(doc.Shaps, type);
             }
             catch (DxfException de)
             {
@@ -124,15 +136,19 @@ namespace RtSafe.DxfCore
         /// 加载图形
         /// </summary>
         /// <param name="shaps"></param>
-        private List<ElementList> LoadShaps(ReadOnlyCollection<IEntityObject> shaps)
+        /// <param name="type"></param>
+        private List<ElementList> LoadShaps(ReadOnlyCollection<IEntityObject> shaps,int type)
         {
-           
+            var enumerable = shaps.GroupBy(c => new {c.Type,c.Layer.Name }).Select(c=>new {c.Key}).OrderBy(c => c.Key.Type).ToList();
             List<TextElement> textElements = new List<TextElement>();
             List<LineElement> lineElements = new List<LineElement>();
             List<ElementList> elementLists = new List<ElementList>();
             List<PathElement> pathElements = new List<PathElement>();
             List<CircleElement> circleElements = new List<CircleElement>();
             List<LightWeightPolylineElement> lightWeightPolylineElements = new List<LightWeightPolylineElement>();
+
+
+            var entityTypes = shaps.GroupBy(c => c.Type).Select(c=>new {c.Key}).ToList();
             foreach (var item in shaps)
             {
                 switch (item.Type)
@@ -140,15 +156,14 @@ namespace RtSafe.DxfCore
                        
                     case EntityType.Arc:
                       PathElement  
-                            pathElement = LoadArc(item as Arc);
-
+                            pathElement = LoadArc(item as Arc, type);
                         if (pathElement != null)
                         {
                             pathElements.Add(pathElement);
                         }
                         break;
                     case EntityType.Circle:
-                      CircleElement circleElement = LoadCircle(item as Circle);
+                      CircleElement circleElement = LoadCircle(item as Circle,type);
 
                         if (circleElement != null)
                         {
@@ -156,9 +171,8 @@ namespace RtSafe.DxfCore
                         }
 
                         break;
-                    //        //case EntityType.Ellipse: e = LoadEllipse(item as Ellipse); break;
                    case EntityType.LightWeightPolyline:
-                        var eel = LoadWpLine(item as LightWeightPolyline);
+                        var eel = LoadWpLine(item as LightWeightPolyline,type);
 
                        if (eel != null)
                        {
@@ -167,22 +181,21 @@ namespace RtSafe.DxfCore
                         break;
                     case EntityType.Line:
                    
-                        LineElement line = LoadLine(item as Line);
+                        LineElement line = LoadLine(item as Line, type);
 
                         if (line != null)
                         {
-                            //textElements = new List<Element>();
+
                             lineElements.Add(line);
-                            //textElements.Add(e);
                         }
                         break;                          
                     case EntityType.Text:
-                        TextElement text = LoadText(item as Text);              
+                        TextElement text = LoadText(item as Text,type);              
                         if (text != null)
                         {
-                            //textElements = new List<Element>();
+
                             textElements.Add(text);
-                            //textElements.Add(e);
+
                         }
                         break;
                         //        //case EntityType.Point: e = LoadPoint(item as Point); break;
@@ -256,7 +269,7 @@ namespace RtSafe.DxfCore
             {
                 elementList.LightWeightPolylineElements = lightWeightPolylineElements;
             }
-           
+            
 
             elementLists.Add(elementList);
             return elementLists; //textElements;
@@ -267,17 +280,29 @@ namespace RtSafe.DxfCore
         /// </summary>
         /// <param name="aciColor">当前颜色</param>
         /// <param name="layer">图层颜色</param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        private Brush GetBrush(AciColor aciColor, Layer layer)
+        private Brush GetBrush(AciColor aciColor, Layer layer,int type)
         {
             if (aciColor.Index == 256)
             {
                 aciColor = layer.Color;
             }
-            if (aciColor.Index == AciColor.Default.Index)
+
+            if (type.Equals((int)Type.One))
             {
-                return new SolidBrush(Color.White);
+                if (aciColor.Index == AciColor.Default.Index)
+                {
+                    return new SolidBrush(Color.White);
+                }
             }
+            else
+            {
+                if (aciColor.Index == AciColor.Default.Index)
+                {
+                    return new SolidBrush(Color.Black);
+                }
+            }           
             return new SolidBrush(aciColor.ToColor());
         }
 
@@ -287,7 +312,7 @@ namespace RtSafe.DxfCore
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        private TextElement LoadText(Text text)
+        private TextElement LoadText(Text text,int type)
         {
             TextElement textElement = new TextElement();
             //Text t = new Text();
@@ -295,7 +320,9 @@ namespace RtSafe.DxfCore
             //t.Text = text.Value.Trim();
             //t. = text.Height;
             textElement.Value = text.Value;
-            textElement.Color = text.Color.ToColor().Name;
+            //text.Color = new AciColor(new Color());
+           
+            textElement.Color = GetBrush(text.Color, text.Layer, type); //new SolidBrush(Color.Black);//text.Color.ToColor().Name;////
             textElement.Fontfamily = text.Style.Font;
             textElement.Size = text.Style.Height;
             textElement.Height = text.Height;
@@ -306,7 +333,7 @@ namespace RtSafe.DxfCore
                 //t.RenderTransform = r;
                 //r.CenterY = text.Height;
             }
-            textElement.Start = new EPoint() { X = text.BasePoint.X - MinX, Y = MaxY - text.BasePoint.Y };
+            textElement.Start = new EPoint() { X = text.BasePoint.X - MinX, Y = MaxY - text.BasePoint.Y+text.Height/2 };
 
             return textElement;
         }
@@ -315,14 +342,15 @@ namespace RtSafe.DxfCore
         /// 加载线段
         /// </summary>
         /// <param name="line"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        private LineElement LoadLine(RTSafe.DxfCore.Entities.Line line)
+        private LineElement LoadLine(RTSafe.DxfCore.Entities.Line line,int type)
         {
             LineElement lineElement = new LineElement();
             
             Line line1 = new Line();
             lineElement.Tag = line.Layer.Name;
-            lineElement.Color = line.Color.ToColor().Name;
+            lineElement.Color = GetBrush(line.Color, line.Layer, type);//line.Color.ToColor().Name;
             //line1.StrokeThickness = GetThickness(line.Thickness);
             lineElement.X1 = line.StartPoint.X - MinX;
 
@@ -336,11 +364,6 @@ namespace RtSafe.DxfCore
             }
             return lineElement;
         }
-
-
-
-
-
 
 
         /// <summary>
@@ -383,78 +406,38 @@ namespace RtSafe.DxfCore
         }
 
 
-
-
-
-
         /// <summary>
         /// 添加点对象
         /// </summary>
+        /// <param name="item"></param>
+        /// <param name="item"></param>
+        /// <param name="type"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        //private FrameworkElement LoadPoint(Point point)
-        //{
-        //    var e = new Ellipse();
-        //    e.Tag = point.Layer.Name;
-        //    e.Height = e.Width = 1;
-        //    e.Stroke = GetBrush(point.Color, point.Layer);
-        //    SetLocal(e, point.Location);
-        //    return e;
-        //}
-
         /// <summary>
         /// 多线段
         /// </summary>
-        /// <param name="item"></param>
         /// <returns></returns>
-        //private FrameworkElement LoadIPolyline(RTSafe.DxfCore.Entities.IPolyline item)
-        //{
-        //    FrameworkElement element = null;
-
-        //    switch (item.Type)
-        //    {
-        //        case RTSafe.DxfCore.Entities.EntityType.Polyline: element = LoadPolyLine(item as Polyline); break;
-        //        case RTSafe.DxfCore.Entities.EntityType.LightWeightPolyline: element = LoadWpLine(item as  LightWeightPolyline); break;
-        //    }
-        //    return element;
-        //}
-
-        //private FrameworkElement LoadPolyLine(RTSafe.DxfCore.Entities.Polyline item)
-        //{
-        //    Polyline p = new Polyline();
-        //    p.Tag = item.Layer.Name;
-        //    p.Points = new PointCollection();
-
-        //    p.Stroke = GetBrush(item.Color, item.Layer);
-        //    p.StrokeThickness = GetThickness(item.Thickness);
-        //    foreach (var vertexe in item.Vertexes)
-        //    {
-        //        p.Points.Add(Vector2fToPoint(vertexe.Location));
-        //    }
-        //    if (item.Flags == RTSafe.DxfCore.Entities.PolylineTypeFlags.ClosedPolylineOrClosedPolygonMeshInM)
-        //    {
-        //        p.Points.Add(p.Points[0]);
-        //    }
-        //    return p;
-        //}
         /// <summary>
         /// 圆弧
         /// </summary>
-        /// <param name="item"></param>
         /// <returns></returns>
-        private PathElement LoadArc(RTSafe.DxfCore.Entities.Arc item)
+        private PathElement LoadArc(RTSafe.DxfCore.Entities.Arc item,int type)
         {
 
             PathElement pathElement = new PathElement();
             pathElement.Tag = item.Layer.Name;
-            pathElement.Color = item.Color.ToColor().Name;
+            pathElement.Color =GetBrush(item.Color,item.Layer, type);
             pathElement.StartAngle = item.StartAngle;
             pathElement.EndAngle = item.EndAngle;
-            var s = item.StartAngle * Math.PI / 180;
+            var s = item.StartAngle ;
+            if (item.Center.X.Equals(269.001501586602d))
+            {
+                pathElement.IsLargeArc = true;
+            }
+
             //pathElement.StartPoint = new EPoint(Math.Cos(s) * item.Radius + item.Center.X - MinX, MaxY - (Math.Sin(s) * item.Radius + item.Center.Y));
             pathElement.StartPoint = new EPoint(item.Center.X- MinX,MaxY - item.Center.Y);
-
-            var end = item.EndAngle * Math.PI / 180;
             var c = item.EndAngle - item.StartAngle;
             ////若果结束角度小于开始角度，弧长为差值加2*pi
             if (c < 0)
@@ -468,7 +451,6 @@ namespace RtSafe.DxfCore
             }
             pathElement.RotationAngle = c;
             pathElement.Radius = item.Radius;
-  
             return pathElement;
         }
         /// <summary>
@@ -559,7 +541,7 @@ namespace RtSafe.DxfCore
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        private CircleElement LoadCircle(Circle item)
+        private CircleElement LoadCircle(Circle item,int type)
         {
            
             CircleElement circleElement = new CircleElement();
@@ -567,20 +549,22 @@ namespace RtSafe.DxfCore
             circleElement.Height = circleElement.Width = 2 * item.Radius;
             circleElement.Radius = item.Radius;
             //e.StrokeThickness = GetThickness(item.Thickness);
-            circleElement.Color = item.Color.ToColor().Name;
+            circleElement.Color =GetBrush(item.Color, item.Layer, type);
             foreach (var i in item.LineType.Segments)
             {
                 //e.StrokeDashArray.Add(i);
             }
-            circleElement.EPoint = new EPoint(item.Center.X - item.Radius - MinX, MaxY - item.Center.Y - item.Radius);
+            circleElement.EPoint = new EPoint(item.Center.X  - MinX, MaxY - item.Center.Y );
             return circleElement;
         }
+
         /// <summary>
         /// 加载多线段
         /// </summary>
         /// <param name="line"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        private LightWeightPolylineElement LoadWpLine(LightWeightPolyline line)
+        private LightWeightPolylineElement LoadWpLine(LightWeightPolyline line,int type)
         {
             var lle = new LightWeightPolylineElement();
             var tag = line.Layer.Name;
@@ -590,19 +574,20 @@ namespace RtSafe.DxfCore
             {
                 lle.EPoints.Add(new EPoint(point.Location.X - MinX, MaxY - point.Location.Y));
             }
-            var color = line.Color.ToColor().Name;
-            lle.Color = color;
+
+            var color = GetBrush(line.Color, line.Layer, type);
+            //lle.Color = color;
 
             if (line.Flags == RTSafe.DxfCore.Entities.PolylineTypeFlags.ClosedPolylineOrClosedPolygonMeshInM)
             {
                 lle.EPoints = lle.EPoints;
-                lle.Color = color;
+                //lle.Color = color;
                 //p.StrokeThickness = GetThickness(line.Thickness);
                 lle.Tag = tag;
                 return lle;
             }
             lle.EPoint = lle.EPoint;
-            lle.Color = color;
+            //lle.Color = color;
             //p.StrokeThickness = GetThickness(line.Thickness);
             lle.Tag = tag;
             return lle;
@@ -740,6 +725,12 @@ namespace RtSafe.DxfCore
         //    return 0.5;
         //}
 
+    }
+
+    public enum Type
+    {
+        One = 1,
+        Two = 2
     }
 
     #region MyRegion

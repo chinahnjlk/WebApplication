@@ -7,104 +7,151 @@
 <head>
     <title>title</title>
     <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
-
 </head>
 <body>
-    <div id="c2"></div>
-    <div id="c4"></div>
+    <div id="net">
+        <input type="button" id="switch" value="切换背景" />
+    </div>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" language="javascript">
-        window.onload = function () {
 
-            var canvas = new G6.Canvas({
-                containerId: 'c4',
-                width: 10000,
-                height: 10000,
-                stroke: 'black'
+        window.onload = function () {
+            $('body').css({ "background-color": "#FFFFFF" });
+            const net = new G6.Net({
+                id: 'net',           // 容器ID
+                height: window.innerHeight,// 画布高
+                grid: null
+                //{
+                //    forceAlign: true, // 是否支持网格对齐
+                //    cell: 10,         // 网格大小
+                //    line: {           // 网格线样式
+                //        stroke: 'black'
+                //    }
+                //}
             });
 
-            //canvas.scale(0.5, 0.5);
+            
+            RequestData(net, 2);
+            var colorName = "white";
+            $('#switch').on('click', function () {
+                console.log(net);
+                var rgb = $('body').css('background-color');
+                console.log(RGBToHex(rgb));
+
+                if (RGBToHex(rgb) == '#FFFFFF') {
+                    RequestData(net, 1);
+                } else {
+                    RequestData(net, 2);
+                }
+                if (colorName == "white") {
+                    $('body').css({ "background-color": "#212830" });
+
+                    colorName = "black"; //return;
+                } else {
+                    $('body').css({ "background-color": "white" });
+                    colorName = "white";
+                }
+
+                var group = net.get("backGroup");
+
+                //console.log(group.__cfg.children);
+                group.__cfg.children.length = 0;
+
+            });
+
+        }
+
+        var RGBToHex = function (rgb) {
+            var regexp = /[0-9]{0,3}/g;
+            var re = rgb.match(regexp);//利用正则表达式去掉多余的部分，将rgb中的数字提取
+            var hexColor = "#"; var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+            for (var i = 0; i < re.length; i++) {
+                var r = null, c = re[i], l = c;
+                var hexAr = [];
+                while (c > 16) {
+                    r = c % 16;
+                    c = (c / 16) >> 0;
+                    hexAr.push(hex[r]);
+                } hexAr.push(hex[c]);
+                if (l < 16 && l != "") {
+                    hexAr.push(0);
+                }
+                hexColor += hexAr.reverse().join('');
+            }
+            //alert(hexColor)
+            return hexColor;
+        }
+
+        var drawCanvas = function (data, net) {
+            var group = net.get("backGroup");
+            //线条    
+            data[0].LineElements.forEach(function (currentValue, index, arr) {
+                group.addShape('line', {
+                    attrs: {
+                        x1: currentValue.X1,
+                        y1: currentValue.Y1,
+                        x2: currentValue.X2,
+                        y2: currentValue.Y2,
+                        stroke: 'rgb(' + currentValue.Color.Color.R + ', ' + currentValue.Color.Color.G + ', ' + currentValue.Color.Color.B + ')'//currentValue.Color
+                    }
+                });
+            });
+            //文本
+            data[0].TextElements.forEach(function (currentValue, index, arr) {
+                group.addShape('text', {
+                    attrs: {
+                        x: parseFloat(currentValue.Start.X),
+                        y: parseFloat(currentValue.Start.Y),
+                        fontFamily: currentValue.Fontfamily,
+                        text: currentValue.Value,
+                        fontSize: parseInt(currentValue.Height),
+                        stroke: 'rgb(' + currentValue.Color.Color.R + ', ' + currentValue.Color.Color.G + ', ' + currentValue.Color.Color.B + ')'
+                    }
+                });
+            });
+
+            //圆
+            data[0].CircleElements.forEach(function (currentValue, index, arr) {
+                group.addShape('Circle', {
+                    attrs: {
+                        x: currentValue.EPoint.X,
+                        y: currentValue.EPoint.Y,
+                        r: currentValue.Radius,
+                        stroke: 'rgb(' + currentValue.Color.Color.R + ', ' + currentValue.Color.Color.G + ', ' + currentValue.Color.Color.B + ')'
+                    }
+                });
+
+            });
+
+            //圆弧
+            data[0].PathElements.forEach(function (currentValue) {
+                group.addShape('arc', {
+                    attrs: {
+                        x: currentValue.StartPoint.X,
+                        y: currentValue.StartPoint.Y,
+                        r: currentValue.Radius,
+                        startAngle: (360 - currentValue.EndAngle) * Math.PI / 180,//1/6 * Math.PI,*Math.PI/90
+                        endAngle: (360 - currentValue.StartAngle) * Math.PI / 180,//5/4 * Math.PI,* Math.PI/90
+                        stroke: 'rgb(' + currentValue.Color.Color.R + ', ' + currentValue.Color.Color.G + ', ' + currentValue.Color.Color.B + ')'
+                        //arrow: true
+                    }
+                });
+
+
+            });
+            net.render();
+        }
+
+        var RequestData = function (net, type) {
             $.ajax({
-                url: "AutoCad/GetData",
-                type: "get",
-                async: "false",
+                url: 'AutoCad/GetData',
+                type: 'get',
+                async: 'false',
+                data: { type: type },
                 success: function (data) {
-                    //console.log(data[0].LineElements);
-
-                    //线条
-                    data[0].LineElements.forEach(function (currentValue, index, arr) {
-                        canvas.addShape('line', {
-                            attrs: {
-                                x1: currentValue.X1,
-                                y1: currentValue.Y1,
-                                x2: currentValue.X2,
-                                y2: currentValue.Y2,
-                                stroke: currentValue.Color
-                            }
-                        });
-                    });
-
-                    //文本
-                    data[0].TextElements.forEach(function (currentValue, index, arr) {
-                        canvas.addShape('text', {
-                            attrs: {
-                                x: parseFloat(currentValue.Start.X),
-                                y: parseFloat(currentValue.Start.Y),
-                                fontFamily: currentValue.Fontfamily,
-                                text: currentValue.Value,
-                                fontSize: parseInt(currentValue.Size),
-                                stroke: 'red'
-                            }
-                        });
-                    });
-
-                    //圆
-
-                    data[0].CircleElements.forEach(function (currentValue, index, arr) {
-                        canvas.addShape('Circle', {
-                            attrs: {
-                                x: currentValue.EPoint.X,
-                                y: currentValue.EPoint.Y,
-                                r: currentValue.Radius,
-                                stroke: 'red'
-                            }
-                        });
-
-                    });
-
-                    //圆弧
-
-                    data[0].PathElements.forEach(function (currentValue) {
-
-                        console.log(currentValue.EndAngle);
-
-                        canvas.addShape('arc', {
-                            attrs: {
-                                x: currentValue.StartPoint.X,
-                                y: currentValue.StartPoint.Y,
-                                r: currentValue.Radius,
-                                startAngle: parseFloat(currentValue.StartAngle),//1/6 * Math.PI,
-                                endAngle: parseFloat(currentValue.EndAngle),//5/4 * Math.PI,
-                                stroke: 'red'
-                                //arrow: true
-                            }
-                        });
-
-                    });
-
-
-                    //x: currentValue.Start.X,
-                    //    y: currentValue.Start.Y,
-                    //    fontFamily: currentValue.Fontfamily,
-                    //    text: currentValue.Value,
-                    //    fontSize: currentValue.Size,
-                    //    stroke: currentValue.Color
-                    canvas.draw();
-                    //console.log(canvas);
+                    drawCanvas(data, net);
                 }
             });
-
-
         }
     </script>
 </body>

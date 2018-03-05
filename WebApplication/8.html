@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网图编辑器（默认）</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="mountNode"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/document.body.clientHeight;</script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        G6.registerNode('customNode1', {
+            draw(cfg, group) {
+                const shape = group.addShape('rect', {
+                    attrs: {
+                        x: cfg.x - 40,
+                        y: cfg.y - 40,
+                        width: 80,
+                        height: 80,
+                        fill: '#fff',
+                        stroke: 'green'
+                    }
+                });
+                return shape;
+            },
+            getAnchorPoints() {
+                return [
+                    [0, 0.25],
+                    [0, 0.5],
+                    [0, 0.75],
+                    [1, 0.25],
+                    [1, 0.5],
+                    [1, 0.75],
+                    [0.25, 0],
+                    [0.5, 0],
+                    [0.75, 0],
+                    [0.25, 1],
+                    [0.5, 1],
+                    [0.75, 1]
+                ];
+            }
+        }, 'rect');
+
+        G6.registerNode('customNode2', {
+            draw(cfg, group) {
+                const shape = group.addShape('rect', {
+                    attrs: {
+                        x: cfg.x - 40,
+                        y: cfg.y - 40,
+                        width: 80,
+                        height: 80,
+                        fill: '#fff',
+                        stroke: 'red'
+                    }
+                });
+                return shape;
+            }
+        }, 'customNode1');
+
+        $('#mountNode').append('<div id="toolBar" style="position: absolute;z-index: 10"></div>');
+        $('#toolBar').append('<button id="addCustom1">自定义形1</button>');
+        $('#toolBar').append('<button id="addCustom2">自定义形2</button>');
+        $('#toolBar').append('<button id="addLine">添加直线</button>');
+        $('#toolBar').append('<button id="addSmooth">添加曲线</button>');
+        $('#toolBar').append('<button id="drag">拖拽模式</button>');
+        $('#toolBar').append('<button id="edit">编辑模式</button>');
+        $('#toolBar').append('<button id="save">保存</button>');
+
+        const addCustom1 = $('#addCustom1');
+        const addCustom2 = $('#addCustom2');
+        const drag = $('#drag');
+        const edit = $('#edit');
+        const addLine = $('#addLine');
+        const addSmooth = $('#addSmooth');
+        const save = $('#save');
+        const net = new G6.Net({
+            id: 'mountNode',      // 容器ID
+            mode: 'edit',  // 编辑模式
+            fitView: 'cc', // 自适应视口为左上
+            height: window.innerHeight    // 画布高
+        });
+        addCustom1.on('click', () => {
+            net.beginAdd('node', {
+                shape: 'customNode1'
+            });
+        });
+
+        addCustom2.on('click', () => {
+            net.beginAdd('node', {
+                shape: 'customNode2'
+            });
+        });
+
+        addLine.on('click', () => {
+            net.beginAdd('edge', {
+                shape: 'line'
+            });
+        });
+
+        addSmooth.on('click', () => {
+            net.beginAdd('edge', {
+                shape: 'smooth'
+            });
+        });
+
+        drag.on('click', () => {
+            net.changeMode('drag');
+        });
+
+        edit.on('click', () => {
+            net.changeMode('edit');
+        });
+
+        save.on('click', () => {
+            const saveData = net.save();
+            const json = JSON.stringify(saveData, null, 2);
+            console.log(saveData, json); // eslint-disable-line no-console
+        });
+        net.render();
+    </script>
+</body>
+</html>

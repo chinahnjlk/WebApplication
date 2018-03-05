@@ -24,97 +24,16 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetData()
+        public JsonResult GetData(string type)
         {
 
-            JsonSerializerSettings setting = new JsonSerializerSettings()
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                
-            };
-
-           
-            FileInfo fileInfo = new FileInfo(@"P:\Demo\WebApplication\WebApplication\Draw3.dxf");
+            FileInfo fileInfo = new FileInfo(@"D:\学习\asp.net\Github\WebApplication\WebApplication\Draw3.dxf");
             var fileStream = fileInfo.OpenRead();
             DxfHelperReader dxfHelperReader = new DxfHelperReader();
-            var list1 =    dxfHelperReader.Read(fileStream);
+            var list1 =    dxfHelperReader.Read(fileStream, int.Parse(type));
 
-            //netDxf.DxfDocument dxfDocument = netDxf.DxfDocument.Load(fileStream);
-            //IReadOnlyList<netDxf.Entities.Line> lines= dxfDocument.Lines;
-            //IReadOnlyList<netDxf.Entities.Arc> arcs = dxfDocument.Arcs;
-            //IReadOnlyList<netDxf.Entities.Text> texts = dxfDocument.Texts;
-
-            //var number = 5 / 5;
-
-            
-
-            //List<netDxf.Entities.Arc> list = new List<Arc>();
-            //List<netDxf.Entities.Line> lineList = new List<Line>();
-            //List<TextElement> textList = new List<TextElement>();
-
-            //texts.ForEach(c =>
-            //{
-            //    TextElement text = new TextElement();
-            //    //text.Alignment = c.Alignment;
-            //    //text.Height = c.Height;
-            //    //text.ObliqueAngle = c.ObliqueAngle;
-            //    //text.Position = c.Position;
-            //    //text.Rotation = c.Rotation;
-            //    //text.Style = c.Style;
-            //    //text.Value = c.Value;
-            //    //text.WidthFactor = c.WidthFactor;
-            //    text.EPoint.X = c.Position.X;
-            //    text.EPoint.Y = c.Position.Y;
-            //    textList.Add(text);
-            //});
-
-
-
-
-            ////arcs.ForEach(c =>
-            ////{
-            ////    Arc arc = new Arc();
-            ////    arc.Center = c.Center;
-            ////    arc.EndAngle = c.EndAngle;
-            ////    arc.Radius = c.Radius;
-            ////    arc.Thickness = c.Thickness;
-            ////    var arcCodeName = arc.CodeName;
-
-            ////    list.Add(arc);
-            ////});
-
-
-            ////lines.ForEach(c =>
-            ////{
-            ////    Line line = new Line
-            ////    {
-            ////        Thickness = c.Thickness,
-            ////        EndPoint = c.EndPoint,
-            ////        StartPoint = c.StartPoint
-            ////    };
-            ////    //line.Direction = c.Direction;
-            ////    lineList.Add(line);
-            ////});
-
-
-            //var serializer = new JavaScriptSerializer();
-            //serializer.MaxJsonLength = Int32.MaxValue;    //设置为int的最大值 
-            ////return serializer.Serialize(jsonObj);
-            var ret = JsonConvert.SerializeObject(list1, setting);
-           
-            
-            //if (!System.IO.File.Exists("P:/2.json"))
-            //{
-            //    FileStream fileStream1 = System.IO.File.Create("P:/2.json");
-
-            //    fileStream.Lock(0, fileStream1.Length);
-            //    StreamWriter sw = new StreamWriter(fileStream1);
-            //    sw.Write(ret);
-            //    //sw.WriteLine("我是写入\n的字符串");
-            //    //fileStream.Unlock(0, fileStream.Length);
-            //    sw.Flush();
-            //}
-
+            //
+            //P:\Demo\WebApplication\WebApplication\Draw3.dxf
             return Json(list1, JsonRequestBehavior.AllowGet);
         }
     }

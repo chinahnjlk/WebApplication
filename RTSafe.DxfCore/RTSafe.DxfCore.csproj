@@ -46,7 +46,6 @@
     <Compile Include="Blocks\BlockEnd.cs" />
     <Compile Include="Canvas.cs" />
     <Compile Include="CodeValuePair.cs" />
-    <Compile Include="Color.cs" />
     <Compile Include="DxfDocument.cs" />
     <Compile Include="DxfException.cs" />
     <Compile Include="DXFHelperReader.cs" />

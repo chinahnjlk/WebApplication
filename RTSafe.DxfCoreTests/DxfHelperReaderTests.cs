@@ -18,7 +18,7 @@ namespace RtSafe.DxfCore.Tests
             DxfHelperReader reader = new DxfHelperReader();
             using (var ms = File.OpenRead("Draw3.dxf"))
             {
-                reader.Read(ms);
+                reader.Read(ms, 1);
                
             }
 

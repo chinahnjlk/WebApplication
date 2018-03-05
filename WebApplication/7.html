@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>G6是什么？</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="mountNode"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/document.body.clientHeight;</script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+$('#mountNode').append('<div id="toolBar" style="position: absolute;z-index: 10"></div>');
+$('#toolBar').append('<button id="up">上一页</button>');
+$('#toolBar').append('<button id="down">下一页</button>');
+$.getJSON('g6ppt.json', data => {
+  const Matrix = G6.Matrix.Matrix3;
+  const GMath = G6.Math;
+  const scale = 1.2; // 放大倍数
+  const scalemin = 0.8;
+  let i = 0; // 从零开始
+  const matrixInit = new Matrix();
+  let canvas;
+
+  // 从一点缩放到另一个点
+  // p0 起始点
+  // p1 目标点
+  function zoom(p0, p1, width, height) {
+    // 借用canvas animate接口用作定时器
+    canvas.animate({
+      onUpdate(f, ratio){
+        if(GMath.equal(ratio, 0.00001)){
+          return;
+        }
+        var matrix = new Matrix();
+        var x = p0.x + (p1.x - p0.x) * ratio;
+        var y = p0.y + (p1.y - p0.y) * ratio;
+        var s = 4 * (scale - 1) * (ratio - 0.5) * (ratio - 0.5) + scalemin;
+        matrix.translate(-x, -y);
+        matrix.scale(s, s);
+        matrix.translate(width/2, height/2);
+        net.updateMatrix(matrix);
+        net.refresh();
+      }
+    }, 1800);
+  }
+
+  const net = new G6.Net({
+    id: 'mountNode',           // 容器ID
+    height: window.innerHeight         // 画布高
+  });
+  const width = net.getWidth();
+  const height = net.getHeight();
+  net.source(data.nodes, data.edges);
+  matrixInit.translate(-data.nodes[0].x, -data.nodes[0].y);
+  matrixInit.scale(scale, scale);
+  matrixInit.translate(width/2, height/2);
+  net.updateMatrix(matrixInit);
+  net.render();
+  net.changeMode('drag');
+  canvas = net.get('canvas');
+  canvas.tween.set('autoDraw', false);
+  $('#down').on('click', () => {
+    if(!data.nodes[i] || !data.nodes[i+1]) return;
+    event.preventDefault();
+    zoom(data.nodes[i], data.nodes[i+1], width, height);
+    i++;
+  });
+  $('#up').on('click', () => {
+    if(!data.nodes[i] || !data.nodes[i-1]) return;
+    event.preventDefault();
+    zoom(data.nodes[i], data.nodes[i-1], width, height);
+    i--;
+  });
+
+});
+    </script>
+</body>
+</html>

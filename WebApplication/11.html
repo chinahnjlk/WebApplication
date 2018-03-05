@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>事件</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="mountNode"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/document.body.clientHeight;</script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/g6/1.2.3/g6.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js
+
+"></script>
+    <script type="text/javascript">
+
+
+        const net = new G6.Net({
+            id: 'mountNode',           // 容器ID
+            height: window.innerHeight         // 画布高
+        });
+        //net.source(data.nodes, data.edges);
+        var group = net.get("backGroup");
+        group.addShape('line', {
+            attrs: {
+                x1: 100,
+                y1: 200,
+                x2: 100,
+                y2: 300,
+                stroke: 'red'                       // 颜色名字
+            }
+        });
+        group.addShape('line', {
+            attrs: {
+                x1: 20,
+                y1: 300 + 20,
+                x2: 280,
+                y2: 300 + 280,
+                //arrow: true,                                             // 显示箭头
+                stroke: '#00ff00'                   // 6位十六进制
+            }
+        });
+        group.addShape('line', {
+            attrs: {
+                x2: 300 + 20,
+                y2: 300 + 20,
+                x1: 300 + 280,
+                y1: 300 + 280,
+                //arrow: true,                                             // 显示箭头
+                stroke: '#00f'                      // 3位十六进制
+            }
+        });
+        net.render();
+        //net.on('itemclick', ev => {
+        //    alert("击中" + ev.item.get('model').id + "!");
+        //});
+        //net.on('itemmousedown', ev => {
+        //    const item = ev.item;
+        //    if (net.isNode(item)) {
+        //        net.update(item, {
+        //            shape: 'circle'
+        //        });
+        //        net.refresh();
+        //    }
+        //});
+        //net.on('itemmouseup', ev => {
+        //    const item = ev.item;
+        //    if (net.isNode(item)) {
+        //        net.update(item, {
+        //            shape: 'rect'
+        //        });
+        //        net.refresh();
+        //    }
+        //});
+        //net.on('itemmouseenter', ev => {
+        //    const item = ev.item;
+        //    net.update(item, {
+        //        color: 'red'
+        //    });
+        //    net.refresh();
+        //});
+        //net.on('itemmouseleave', ev => {
+        //    const item = ev.item;
+        //    net.update(item, {
+        //        color: null
+        //    });
+        //    net.refresh();
+        //});
+    </script>
+</body>
+</html>
